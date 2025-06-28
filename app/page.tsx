@@ -279,7 +279,7 @@ export default function CricketScoreLogger() {
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center space-x-2">
               <Trophy className="h-8 w-8 text-green-600" />
-              <h1 className="text-3xl font-bold text-gray-900">Cricket Score Logger</h1>
+              <h1 className="text-3xl font-bold text-gray-900">CricScore</h1>
             </div>
             <p className="text-gray-600">Professional ball-by-ball scoring system</p>
           </div>

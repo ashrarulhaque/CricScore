@@ -6,8 +6,8 @@ import CreatorBadge from '@/components/ui/creator-badge';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Cricket Score Logger',
-  description: 'Log Live Cricket Score',
+  title: 'CricScore',
+  description: 'Live Cricket Score Logger',
 };
 
 export default function RootLayout({
