@@ -36,7 +36,7 @@ interface Ball {
   ballNumber: number;
   overNumber: number;
   runs: number;
-  type: 'normal' | 'wide' | 'noball' | 'wicket';
+  type: 'normal' | 'wide' | 'noball' | 'wicket' | 'runout';
   batsman: string;
   extras?: number;
   newBatsman?: string;
@@ -103,13 +103,13 @@ export default function CricketScoreLogger() {
     }
   };
 
-  const addBall = useCallback((runs: number, type: 'normal' | 'wide' | 'noball' | 'wicket', extras: number = 0) => {
+  const addBall = useCallback((runs: number, type: 'normal' | 'wide' | 'noball' | 'wicket' | 'runout', extras: number = 0) => {
     // Prevent double execution
     if (isProcessing) return;
     setIsProcessing(true);
 
     // Calculate ball number for this delivery
-    const currentBallInOver = type === 'normal' || type === 'wicket' ? 
+    const currentBallInOver = type === 'normal' || type === 'wicket' || type === 'runout' ? 
       matchState.score.balls + 1 : matchState.score.balls;
     
     const ball: Ball = {
@@ -121,7 +121,7 @@ export default function CricketScoreLogger() {
       extras
     };
 
-    if (type === 'wicket') {
+    if (type === 'wicket' || type === 'runout') {
       setPendingWicketBall(ball);
       setShowNewBatsmanDialog(true);
       setIsProcessing(false);
@@ -142,7 +142,7 @@ export default function CricketScoreLogger() {
       newState.score.runs += ball.runs + (ball.extras || 0);
 
       // Update batsman stats for normal deliveries only
-      if (ball.type === 'normal') {
+      if (ball.type === 'normal' || ball.type === 'runout') {
         newState.batsmen.striker.runs += ball.runs;
         newState.batsmen.striker.balls += 1;
         if (ball.runs === 4) newState.batsmen.striker.fours += 1;
@@ -434,11 +434,12 @@ export default function CricketScoreLogger() {
                       </span>
                       <div className="flex items-center space-x-2">
                         <Badge variant={
-                          ball.type === 'wicket' ? 'destructive' : 
+                          ball.type === 'wicket' || ball.type === 'runout' ? 'destructive' : 
                           ball.type === 'wide' || ball.type === 'noball' ? 'secondary' : 
                           'outline'
                         }>
                           {ball.type === 'wicket' ? 'W' : 
+                           ball.type === 'runout' ? `RO+${ball.runs}` :
                            ball.type === 'wide' ? `Wd+${ball.runs}` :
                            ball.type === 'noball' ? `Nb+${ball.runs}` :
                            ball.runs}
@@ -595,6 +596,19 @@ export default function CricketScoreLogger() {
                 >
                   Wicket
                 </Button>
+                <Button
+                  variant="destructive"
+                  className="h-12 text-lg font-bold col-span-2"
+                  onClick={() => {
+                    const runs = prompt("Enter runs in a run-out situation:");
+                    if (runs !== null) {
+                      addBall(parseInt(runs) || 0, 'runout');
+                    }
+                  }}
+                  disabled={isProcessing}
+                >
+                  RunOut
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -611,12 +625,14 @@ export default function CricketScoreLogger() {
                     key={`${ball.overNumber}-${ball.ballNumber}-${index}`}
                     variant={
                       ball.type === 'wicket' ? 'destructive' :
+                      ball.type === 'runout' ? 'destructive' :
                       ball.type === 'wide' || ball.type === 'noball' ? 'secondary' :
                       ball.runs >= 4 ? 'default' : 'outline'
                     }
                     className="text-sm"
                   >
                     {ball.type === 'wicket' ? 'W' :
+                     ball.type === 'runout' ? 'RO' :
                      ball.type === 'wide' ? `Wd` :
                      ball.type === 'noball' ? `Nb` :
                      ball.runs}
